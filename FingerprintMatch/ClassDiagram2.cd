@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="FingerprintMatch.classes.attendanceRecord" Collapsed="true">
+    <Position X="1" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAALICAAAAAgAAAQQAIGgAAQBAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>classes\attendanceRecord.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FingerprintMatch.classes.clsSynchronise">
+    <Position X="8.25" Y="0.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAgABBBAQAAABQAECAAAAIAABAAAEAAAAIEAAAAAAA=</HashCode>
+      <FileName>classes\clsSynchronise.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FingerprintMatch.classes.course" Collapsed="true">
+    <Position X="4.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>classes\course.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FingerprintMatch.classes.dlDataHelper" Collapsed="true">
+    <Position X="6.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAAAACCAAAAAAAEAAAAAQAABYAAAAIgAA=</HashCode>
+      <FileName>classes\dlDataHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FingerprintMatch.classes.worker" Collapsed="true">
+    <Position X="2.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAMEAAEAAAAIACAAAAAEAAAAIAAQAAEYAAAAEABA=</HashCode>
+      <FileName>classes\dlDataHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FingerprintMatch.classes.dlExamID" Collapsed="true">
+    <Position X="1" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAAA=</HashCode>
+      <FileName>classes\dlExamID.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FingerprintMatch.classes.dlRegistration" Collapsed="true">
+    <Position X="2.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAEAAAAAAAAAAAAEAAAAACBBIQAwAAEAAAEQAhBA=</HashCode>
+      <FileName>classes\dlRegistration.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FingerprintMatch.classes.student" Collapsed="true">
+    <Position X="4.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAhAEHAAgAEIyABAAAAAAIAAAAAAAAAABACAAAAAAAg=</HashCode>
+      <FileName>classes\student.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FingerprintMatch.classes.universityStudent" Collapsed="true">
+    <Position X="6.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAg=</HashCode>
+      <FileName>classes\universityStudent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FingerprintMatch.Main" Collapsed="true">
+    <Position X="4.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>FJiVMWEwn6Q7ARoQQSmECwcDjOFQUTWkBI8QWM0NM/g=</HashCode>
+      <FileName>Main.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FingerprintMatch.Program" Collapsed="true">
+    <Position X="6.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FingerprintMatch.Utilities" Collapsed="true">
+    <Position X="1" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAA=</HashCode>
+      <FileName>Utilities.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FingerprintMatch.Properties.Resources" Collapsed="true">
+    <Position X="1" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAABEAAAAQAAAAAAAAAAAAAAAIA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FingerprintMatch.Properties.Settings" Collapsed="true">
+    <Position X="2.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQQIAAAAABBAARAAAIFAAAAABAAEAgCAAIAJEAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

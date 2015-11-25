@@ -1,0 +1,100 @@
+Install Files
+Create Shortcut
+Install Assembly
+Install Assembly
+Install Assembly
+Install Assembly
+Install Assembly
+Install Assembly
+Install Assembly
+Install Assembly
+$
+{A8414DD0-A8BB-4834-8460-E4143C652951}
+{116E1744-86BF-40CD-8E51-2FA9794C27CF}
+{4C2EE113-E20D-4239-84B5-7361AA38E745}
+{238FB1C3-FEC9-4D67-A9BA-B856E3B35CFD}
+{86BB3C8F-F900-412F-B4C1-A7215936431A}
+{86D18750-D6EE-48EA-BBB1-E45509E5496C}
+{4049C24E-BAF8-4420-9D2D-146D8AF6E4DC}
+{B62C139F-18A5-487A-BC70-06A7380C5D33}
+{64DE56CE-61DD-4263-9414-84C264B4A645}
+{58EEA252-6824-4CAC-8AF6-0359ACA1F5CB}
+$
+{A8414DD0-A8BB-4834-8460-E4143C652951}
+C:\Projects\FingerprintMatch\FingerprintMatch\bin\Debug\FingerprintMatch.exe
+FALSE
+$TARGETDIR$
+FALSE
+FALSE
+FALSE
+FALSE
+FALSE
+FALSE
+FALSE
+FALSE
+FALSE
+{116E1744-86BF-40CD-8E51-2FA9794C27CF}
+$TARGETDIR$\FingerprintMatch.exe
+FingerprintMatch
+$SHORTCUTFOLDER$
+FingerprintMatch
+
+
+
+
+0
+{4C2EE113-E20D-4239-84B5-7361AA38E745}
+C:\Program Files (x86)\Neurotechnology\Neurotec Biometric 4.5 SDK\Bin\Win32_x86\Neurotec.dll
+FALSE
+$TARGETDIR$
+{238FB1C3-FEC9-4D67-A9BA-B856E3B35CFD}
+C:\Program Files (x86)\Neurotechnology\Neurotec Biometric 4.5 SDK\Bin\Win32_x86\Neurotec.Biometrics.dll
+FALSE
+$TARGETDIR$
+{86BB3C8F-F900-412F-B4C1-A7215936431A}
+C:\Program Files (x86)\Neurotechnology\Neurotec Biometric 4.5 SDK\Bin\Win32_x86\Neurotec.Biometrics.Gui.dll
+FALSE
+$TARGETDIR$
+{86D18750-D6EE-48EA-BBB1-E45509E5496C}
+C:\Program Files (x86)\Neurotechnology\Neurotec Biometric 4.5 SDK\Bin\Win32_x86\Neurotec.Biometrics.Tools.dll
+FALSE
+$TARGETDIR$
+{4049C24E-BAF8-4420-9D2D-146D8AF6E4DC}
+C:\Program Files (x86)\Neurotechnology\Neurotec Biometric 4.5 SDK\Bin\Win32_x86\Neurotec.Devices.dll
+FALSE
+$TARGETDIR$
+{B62C139F-18A5-487A-BC70-06A7380C5D33}
+C:\Program Files (x86)\Neurotechnology\Neurotec Biometric 4.5 SDK\Bin\Win32_x86\Neurotec.Gui.dll
+FALSE
+$TARGETDIR$
+{64DE56CE-61DD-4263-9414-84C264B4A645}
+C:\Program Files (x86)\Neurotechnology\Neurotec Biometric 4.5 SDK\Bin\Win32_x86\Neurotec.Licensing.dll
+FALSE
+$TARGETDIR$
+{58EEA252-6824-4CAC-8AF6-0359ACA1F5CB}
+C:\Program Files (x86)\Neurotechnology\Neurotec Biometric 4.5 SDK\Bin\Win32_x86\Neurotec.Media.dll
+FALSE
+$TARGETDIR$
+$
+
+
+
+
+
+
+
+
+
+
+$
+
+
+
+
+
+
+
+
+
+
+$
