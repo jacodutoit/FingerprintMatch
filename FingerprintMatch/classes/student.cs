@@ -15,16 +15,16 @@ namespace FingerprintMatch.classes
         public string StudentNumber { get; set; }
         public string CardNumber { get; set; }
         public string CardHistory { get; set; }
-        public NFRecord LeftPinkie { get; set; }
-        public NFRecord LeftRing { get; set; }
-        public NFRecord LeftMiddle { get; set; }
-        public NFRecord LeftIndex { get; set; }
-        public NFRecord LeftThumb { get; set; }
-        public NFRecord RightThumb { get; set; }
-        public NFRecord RightIndex { get; set; }
-        public NFRecord RightMiddle { get; set; }
-        public NFRecord RightRing { get; set; }
-        public NFRecord RightPinkie { get; set; }
+        public NTemplate LeftPinkie { get; set; }
+        public NTemplate LeftRing { get; set; }
+        public NTemplate LeftMiddle { get; set; }
+        public NTemplate LeftIndex { get; set; }
+        public NTemplate LeftThumb { get; set; }
+        public NTemplate RightThumb { get; set; }
+        public NTemplate RightIndex { get; set; }
+        public NTemplate RightMiddle { get; set; }
+        public NTemplate RightRing { get; set; }
+        public NTemplate RightPinkie { get; set; }
         public byte[][] template {get; set;}
         public bool Enrolled { get; set; }
 
@@ -36,8 +36,8 @@ namespace FingerprintMatch.classes
         }
 
         public student(string _firstName, string _lastname, string _idNumber, string _studentNumber, string _cardNumber,
-            NFRecord _leftPinkie, NFRecord _leftRing, NFRecord _leftMiddle, NFRecord _leftIndex, NFRecord _leftThumb,
-            NFRecord _rightThumb, NFRecord _rightIndex, NFRecord _rightMiddle, NFRecord _rightRing, NFRecord _rightPinkie, bool _enrolled)
+            NTemplate _leftPinkie, NTemplate _leftRing, NTemplate _leftMiddle, NTemplate _leftIndex, NTemplate _leftThumb,
+            NTemplate _rightThumb, NTemplate _rightIndex, NTemplate _rightMiddle, NTemplate _rightRing, NTemplate _rightPinkie, bool _enrolled)
         {
             FirstName = _firstName;
             LastName = _lastname;

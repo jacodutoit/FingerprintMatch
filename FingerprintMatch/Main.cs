@@ -11,6 +11,7 @@ using FingerprintMatch.classes;
 using Neurotec.Licensing;
 using Neurotec.Devices;
 using Neurotec.Biometrics;
+using Neurotec.Biometrics.Client;
 using Neurotec.Images;
 using Neurotec.IO;
 using System.Diagnostics;
@@ -38,7 +39,9 @@ namespace FingerprintMatch
         
         private bool cancelMatchScan = false;
         private NImage fingerprintImage;
-        private NFRecord fingerprintTemplate;
+        private NTemplate fingerprintTemplate;
+        private NFinger studentFinger;
+        private NSubject studentSubject;
 
         private string matchedStudentNumber;
         private int matchedFingerID;
@@ -123,9 +126,9 @@ namespace FingerprintMatch
 
             EventLog.WriteEntry(sSource, "Started App");
 
-            SetupTimer();
-            resultImageMinColor = new NRgb(0,230,0);
-            resultImageMaxColor = new NRgb(255, 255, 255);
+            //SetupTimer();
+            //resultImageMinColor = new NRgb(0,230,0);
+            //resultImageMaxColor = new NRgb(255, 255, 255);
             breakoutPin = "";
         }
 
@@ -135,15 +138,15 @@ namespace FingerprintMatch
             const string DisableHelpStickerKeyName ="HKEY_CURRENT_USER\\Software\\Policies\\Microsoft\\Windows\\EdgeUI";
 
             
-            try
-	        {
-                Registry.SetValue(InternetBrowserAutoStartKeyName,"EnableActiveProbing",0,RegistryValueKind.DWord);
-                Registry.SetValue(DisableHelpStickerKeyName, "DisableHelpSticker", 1, RegistryValueKind.DWord);
-	        }
-	        catch (Exception)
-	        {
-		        throw;
-	        }
+         //   try
+	        //{
+         //       Registry.SetValue(InternetBrowserAutoStartKeyName,"EnableActiveProbing",0,RegistryValueKind.DWord);
+         //       Registry.SetValue(DisableHelpStickerKeyName, "DisableHelpSticker", 1, RegistryValueKind.DWord);
+	        //}
+	        //catch (Exception)
+	        //{
+		       // throw;
+	        //}
         }
 
         //Use this process to update certain core files to new versions
@@ -388,8 +391,10 @@ namespace FingerprintMatch
             pnlMain.Visible = false;
 
             int Width, Height;
-            Width = Main.ActiveForm.Width;
-            Height = Main.ActiveForm.Height;
+            Width = this.Width;
+            Height = this.Height;
+            //Width = Main.ActiveForm.Width;
+            //Height = Main.ActiveForm.Height;
             pnlIdentification.Dock = DockStyle.Fill;
             
 
@@ -617,9 +622,11 @@ namespace FingerprintMatch
             lblStatus.Text = "Before getting students for courses";
 
             txtMatchStudentNumber.Text = "";
-            nfView1.Image = null;
-            nfView1.ResultImage = null;
-            nfView1.Template = null;
+            nFView1.Finger = null;
+            studentSubject = null;
+            studentFinger = null;
+            //nfView1.ResultImage = null;
+            //nfView1.Template = null;
 
             int Width;
             lblIdentifyActionMessage.Font = new Font("Arial", 25);
@@ -679,11 +686,11 @@ namespace FingerprintMatch
         {
             
             lblIdentifyActionMessage.Text = "Please scan right index finger";
+
+            //nFView1.BackColor = Color.Azure;
+            nFView1.Visible = true;
+            nFView1.Location = new Point((pnlIdentifyAction.Width - nFView1.Width) / 2, 75);
             
-            nfView1.Location = new Point((pnlIdentifyAction.Width - nfView1.Width) / 2, 75);
-            nfView1.Image = null;
-            nfView1.ResultImage = null;
-            nfView1.Template = null;
             lblMatchResult.Text = "";
             MatchingButtons();
             MatchingCancel();
@@ -700,7 +707,7 @@ namespace FingerprintMatch
             Width = (pnlIdentifyAction.Width / 2) / 5 * 4;
             lblMatchResult.Width = Width;
             lblMatchResult.Height = 75;
-            lblMatchResult.Location = new Point(pnlIdentifyAction.Width / 10 * 3, nfView1.Bottom + 10);
+            lblMatchResult.Location = new Point(pnlIdentifyAction.Width / 10 * 3, nFView1.Bottom + 10);
             lblMatchResult.Visible = true;
 
             Width = (pnlIdentifyAction.Width / 2) / 5 * 4;
@@ -760,7 +767,7 @@ namespace FingerprintMatch
             LoadIdentificationCancel();
         }       
 
-        private string MatchStudents(NFRecord template, BindingList<student> StudentsInCourse)
+        private string MatchStudents(NTemplate template, BindingList<student> StudentsInCourse)
         {
             const string Components = "Biometrics.FingerExtraction,Biometrics.FingerMatching";
 
@@ -769,8 +776,9 @@ namespace FingerprintMatch
             string highestStudent = "";
             int highestMatch = 0;
 
-            NFExtractor extractor = null;
-            NMatcher matcher = null;
+            
+            
+            //NMatcher matcher = null;
             try
             {
                 lblStatus.Text = "Getting License!";
@@ -787,67 +795,101 @@ namespace FingerprintMatch
                 //extractor = new NFExtractor();
 
                 // extract probe template
-                
-                NBuffer probeTemplate = template.Save();
 
+                var biometricClient = new NBiometricClient();
+                var probeSubject = new NSubject();
+                NTemplate probeTemplate = template;
+                probeSubject.SetTemplate(probeTemplate);
+                
+                NBiometricStatus status= biometricClient.CreateTemplate(probeSubject);
+                biometricClient.MatchingFirstResultOnly = false;
+                if (status != NBiometricStatus.Ok)
+                {
+                    Console.WriteLine("Failed to create probe template. Status: {0}.", status);
+                }
                 lblStatus.Text = "Exctracting templates";
                 // extract gallery templates
                 int args = StudentsInCourse.Count * 10;
-                NBuffer[] galleryTemplates = new NBuffer[args - 1];
+                NTemplate[] galleryTemplates = new NTemplate[args - 1];
+
+                // Create gallery templates and enroll them
+                NBiometricTask enrollTask = biometricClient.CreateTask(NBiometricOperations.Enroll, null);
+                
                 string[] students = new string[args - 1];
                 int n = 0;
                 foreach (student currentStudent in StudentsInCourse)
                 {
                     for (int count = 0; count < 10; count++)
                     {
-                        try
+                        if(currentStudent.template[count]!=null)
                         {
-                            galleryTemplates[n+count] = new NBuffer(currentStudent.template[count]);
-                            students[n + count] = currentStudent.StudentNumber;
+                            try
+                            {
+                                NTemplate galleryTemplate = new NTemplate(currentStudent.template[count]);
 
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine("Could not load template for student" + currentStudent.StudentNumber + " - " + ex.Message);
-                        }
+                                enrollTask.Subjects.Add(CreateSubject(galleryTemplate, (n + count).ToString()));
+                                //galleryTemplates[n+count] = new NBuffer(currentStudent.template[count]);
+                                students[n + count] = currentStudent.StudentNumber;
+
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("Could not load template for student" + currentStudent.StudentNumber + " - " + ex.Message);
+                            }
+                        } 
                     }
                     
                     n = n + 10;
                 }
 
-                                
-                // create a matcher
-                matcher = new NMatcher();
-                // identify reference template by comparing to each template from arguments
-                Console.WriteLine(@"=== identification started ===");
-                matcher.IdentifyStart(probeTemplate);
+
+                biometricClient.PerformTask(enrollTask);
+                status = enrollTask.Status;
+                if (status != NBiometricStatus.Ok)
+                {
+                    Console.WriteLine("Enrollment was unsuccessful. Status: {0}.", status);
+                    if (enrollTask.Error != null) throw enrollTask.Error;
+                }
+                // Set matching threshold
+                biometricClient.MatchingThreshold = 48;
+
+                // Set matching speed
+                biometricClient.FingersMatchingSpeed = NMatchingSpeed.Low;
+
+                // Identify probe subject
+                status = biometricClient.Identify(probeSubject);
 
                 lblStatus.Text = "Identifying start";
-                try
+
+                if (status == NBiometricStatus.Ok)
                 {
-                    for (int i = 1; i < args; i++)
+                    foreach (var matchingResult in probeSubject.MatchingResults)
                     {
-                        if (galleryTemplates[i - 1].Size != 0)
+                        //Console.WriteLine("Matched with ID: '{0}' with score {1}", matchingResult.Id, matchingResult.Score);
+                        int score = matchingResult.Score;
+                        if (score > highestMatch)
                         {
-                            int score = matcher.IdentifyNext(galleryTemplates[i - 1]);
-                            if (score > highestMatch)
-                            {
-                                Console.WriteLine(@"template[{0}] scored {1} {2}", i - 1, score, score > 0 ? "(Matched)" : "");
-                                Console.WriteLine("student number matched: " + students[i-1]);
-                                highestMatch = score;
-                                highestStudent = students[i - 1];
-                                matchedFingerID = i % 10;
-                                matchedScore = score;
-                            }
-                            
+                            Console.WriteLine(@"template[{0}] scored {1} {2}", matchingResult.Id, score, score > 0 ? "(Matched)" : "");
+                            int intIndex = 0;
+                            Int32.TryParse(matchingResult.Id, out intIndex);
+                            Console.WriteLine("student number matched: " + students[intIndex - 1]);
+                            highestMatch = score;
+                            highestStudent = students[intIndex];
+                            matchedFingerID = intIndex % 10;
+                            matchedScore = score;
                         }
-                        
                     }
                 }
-                finally
+                else if (status == NBiometricStatus.MatchNotFound)
                 {
-                    matcher.IdentifyEnd();
+                    Console.WriteLine("Match not found!");
                 }
+                else
+                {
+                    Console.WriteLine("Matching failed! Status: {0}", status);
+                    
+                }
+                
                 Console.WriteLine(@"=== identification finished ===");
 
                 //return 0;
@@ -863,19 +905,20 @@ namespace FingerprintMatch
                 Application.DoEvents();
                 NLicense.ReleaseComponents(Components);
 
-                if (extractor != null)
-                {
-                    extractor.Dispose();
-                }
-                if (matcher != null)
-                {
-                    matcher.Dispose();
-                }
+                
                 lblStatus.Text = "License Released";
                 Application.DoEvents();
             }
 
             return highestStudent;
+        }
+
+        private static NSubject CreateSubject(NTemplate template, string subjectId)
+        {
+            var subject = new NSubject();
+            subject.SetTemplate(template);
+            subject.Id = subjectId;
+            return subject;
         }
 
         private void DisplayMatchResult(string MatchedStudent)
@@ -885,7 +928,7 @@ namespace FingerprintMatch
                 lblMatchResult.Text = "Matched Student: " + MatchedStudent + ". If this is not correct. Please enter student number then press Continue";
                 lblMatchResult.AutoSize = true;
                 lblMatchResult.MaximumSize = new Size(pnlIdentifyAction.Width / 5 * 3, 250);
-                lblMatchResult.Location = new Point((pnlIdentifyAction.Width / 2) - (lblMatchResult.Width / 2), nfView1.Bottom + 10);
+                lblMatchResult.Location = new Point((pnlIdentifyAction.Width / 2) - (lblMatchResult.Width / 2), nFView1.Bottom + 10);
                 txtMatchStudentNumber.Location = new Point(pnlIdentifyAction.Width / 10 * 3, lblMatchResult.Bottom + 10);
                 txtMatchStudentNumber.Enabled = true;
                 txtMatchStudentNumber.Text = MatchedStudent;
@@ -908,7 +951,7 @@ namespace FingerprintMatch
                 lblMatchResult.Text = "Could not identify the student.  Please type your student number and press Continue";
                 lblMatchResult.AutoSize = true;
                 lblMatchResult.MaximumSize = new Size(pnlIdentifyAction.Width / 5 * 3, 250);
-                lblMatchResult.Location = new Point((pnlIdentifyAction.Width / 2) - (lblMatchResult.Width / 2), nfView1.Bottom + 10);
+                lblMatchResult.Location = new Point((pnlIdentifyAction.Width / 2) - (lblMatchResult.Width / 2), nFView1.Bottom + 10);
                 txtMatchStudentNumber.Location = new Point(pnlIdentifyAction.Width / 10 * 3, lblMatchResult.Bottom + 10);
                 txtMatchStudentNumber.Enabled = true;
                 txtMatchStudentNumber.Text = MatchedStudent;
@@ -1003,7 +1046,9 @@ namespace FingerprintMatch
                 EnrolledCourse = new course(tempCourse.CourseCode,tempCourse.Description);
             }
 
-            byte[] templateBuffer = (byte[])fingerprintTemplate.Save();
+            NBuffer BufferTemplate = fingerprintTemplate.Save();
+
+            byte[] templateBuffer = BufferTemplate.ToArray();
             if (ThisMatchedStudent.Enrolled)
             {
                 //If the student has a registered fingerprint then check the grace setting.
@@ -1178,9 +1223,10 @@ namespace FingerprintMatch
             txtMatchStudentNumber.Enabled = false;
             lblMatchResult.Text = "";
             txtMatchStudentNumber.Text = "";
-            nfView1.Template = null;
-            nfView1.Image = null;
-            nfView1.ResultImage = null;
+            //nfView1.Template = null;
+            //nfView1.Image = null;
+            //nfView1.ResultImage = null;
+            nFView1.Finger = null;
             lblIdentifyActionMessage.Text = "Please scan right index finger";
 
             loadConfirmMessage();
@@ -1258,6 +1304,8 @@ namespace FingerprintMatch
             txtCancelScanPin.Enabled = true;
             txtCancelScanPin.Text = "";
 
+            
+
             pnlConfirmCancel.Visible = true;
         }
 
@@ -1281,9 +1329,10 @@ namespace FingerprintMatch
             const string Components = "Biometrics.FingerExtraction,Devices.FingerScanners";
             NLicense.ReleaseComponents(Components);
 
-            nfView1.Template = null;
-            nfView1.Image = null;
-            nfView1.ResultImage = null;
+            //nfView1.Template = null;
+            nFView1.Finger = null;
+            //nfView1.ResultImage = null;
+            
             txtMatchStudentNumber.Text = "";
 
             IdentifyActionScreen();
@@ -1310,7 +1359,7 @@ namespace FingerprintMatch
             {
 
                 pnlConfirmCancel.Visible = false;
-
+                nFView1.Visible = false;
                 cancelMatchScan = true;
                 bckScanFinger.CancelAsync();
                 Application.DoEvents();
@@ -1329,9 +1378,10 @@ namespace FingerprintMatch
                 const string Components = "Biometrics.FingerExtraction,Devices.FingerScanners";
                 NLicense.ReleaseComponents(Components);
 
-                nfView1.Template = null;
-                nfView1.Image = null;
-                nfView1.ResultImage = null;
+                //nfView1.Template = null;
+                nFView1.Finger = null;
+                //nfView1.ResultImage = null;
+                
                 txtMatchStudentNumber.Text = "";
 
                 IdentifyActionScreen();
@@ -1431,21 +1481,30 @@ namespace FingerprintMatch
             if (ScannedTemplated)
             {
                 string matchedStudentNumber = "";
+                studentFinger = new NFinger();
 
+                //NSubject subject = new NSubject();
+                studentFinger = studentSubject.Fingers[0];
                 
-                nfView1.Template = fingerprintTemplate;
-                nfView1.ShownImage = Neurotec.Biometrics.Gui.ShownImage.Result;
-                nfView1.ResultImage = fingerprintImage.ToBitmap();
-                nfView1.Image = fingerprintImage.ToBitmap();
-                nfView1.ShowTree = true;
+                //nFView1.Finger = finger;
+                //nFView1.MinutiaColor = Color.Red;
+                //nFView1.Finger.GetBinarizedImage(false);
+                //nFView1.ShownImage = Neurotec.Biometrics.Gui.ShownImage.Result;
+                //nFView1.Finger.Image = fingerprintImage;
+
+                //nfView1.Template = fingerprintTemplate;
+                //nfView1.ShownImage = Neurotec.Biometrics.Gui.ShownImage.Result;
+                //nfView1.ResultImage = fingerprintImage.ToBitmap();
+                
+                //nfView1.ShowTree = true;
                 txtMatchStudentNumber.Enabled = true;
                 if (fingerprintImage.Width > fingerprintImage.Height)
                 {
-                    nfView1.Zoom = (float)nfView1.Width / (float)fingerprintImage.Width;
+                    nFView1.Zoom = (float)nFView1.Width / (float)fingerprintImage.Width;
                 }
                 else
                 {
-                    nfView1.Zoom = (float)nfView1.Height / (float)fingerprintImage.Height;
+                    nFView1.Zoom = (float)nFView1.Height / (float)fingerprintImage.Height;
                 }
                 matchedStudentNumber = MatchStudents(fingerprintTemplate, lstStudents);
                 DisplayMatchResult(matchedStudentNumber);
@@ -1528,11 +1587,28 @@ namespace FingerprintMatch
 
         private void bckScanFinger_DoWork(object sender, DoWorkEventArgs e)
         {
+            const string Components = "Biometrics.FingerExtraction,Devices.FingerScanners";
             BackgroundWorker bck = (BackgroundWorker)sender;
             try
             {
+                NBiometricClient biometricClient = new NBiometricClient { UseDeviceManager = true };
+                var devMan = biometricClient.DeviceManager;
+                studentSubject = new NSubject();
+                studentFinger = new NFinger();
+                
+                devMan.DeviceTypes = NDeviceType.FingerScanner;
+
+                if (!NLicense.ObtainComponents("/local", 5000, Components))
+                {
+                    throw new ApplicationException(string.Format("Could not obtain licenses for components: {0}", Components));
+                }
+
+                //initialize the NDeviceManager
+                devMan.Initialize();
+
                 int i;
-                NDeviceManager devMan = new NDeviceManager(NDeviceType.FingerScanner, true, false);
+
+                //get count of connected devices
                 int count = devMan.Devices.Count;
 
                 //See if a fingerprint scanner is connected
@@ -1546,17 +1622,25 @@ namespace FingerprintMatch
                 }
 
                 if (count > 1)
+                {
                     //What if there is more than one scanner.  We will use the first detected scanner.
                     for (i = 0; i < count; i++)
                     {
                         NDevice device = devMan.Devices[i];
                     }
+                }
+                    
                 i = 0;
-                NFScanner fingerScanner = (NFScanner)devMan.Devices[i];
-                NFExtractor extractor = new NFExtractor();
-                NFRecord record;
-                extractor.ReturnedImage = NfeReturnedImage.Binarized;
+
+                //set the selected finger scanner as NBiometricClient Finger Scanner
+                biometricClient.FingerScanner = (NFScanner)devMan.Devices[i];
+                biometricClient.FingersCalculateNfiq = true;
+                //biometricClient.FingersDeterminePatternClass = true;
+                biometricClient.FingersReturnBinarizedImage = true;
+                //biometricClient.FingersReturnRidgeSkeletonImage = true;
                 
+                //add NFinger to NSubject
+                studentSubject.Fingers.Add(studentFinger);
 
                 NImage image = null;
                 while (image == null && !bckScanFinger.CancellationPending)
@@ -1567,42 +1651,40 @@ namespace FingerprintMatch
                     }
                     else
                     {
-                        using ( image = fingerScanner.Capture(5000))
+                        //start capturing
+                        
+                        NBiometricStatus status = biometricClient.Capture(studentSubject);
+                        if (status != NBiometricStatus.Ok)
                         {
-                            if (image == null)
-                            {
-                                GlobalScanStatus = ScanStatus.NoTemplateCreated;
-                            }
-                            else
-                            {
-                                NfeExtractionStatus extractionStatus;
-                                using (NGrayscaleImage grayscaleImage = image.ToGrayscale())
-                                {
-                                    if (grayscaleImage.ResolutionIsAspectRatio
-                                        || grayscaleImage.HorzResolution < 250
-                                        || grayscaleImage.VertResolution < 250)
-                                    {
-                                        grayscaleImage.HorzResolution = 500;
-                                        grayscaleImage.VertResolution = 500;
-                                        grayscaleImage.ResolutionIsAspectRatio = false;
-                                    }
-                                    
-                                    record = extractor.Extract(grayscaleImage, NFPosition.Unknown, NFImpressionType.LiveScanPlain, out extractionStatus);
-                                    fingerprintImage = (NImage)image.Clone();
-                                    fingerprintImage = NImages.GetGrayscaleColorWrapper(fingerprintImage, resultImageMinColor, resultImageMaxColor);
-                                    
-                                }
-
-                                if (extractionStatus == NfeExtractionStatus.TemplateCreated)
-                                {
-                                    GlobalScanStatus = ScanStatus.TemplateCreated;
-                                    fingerprintTemplate = record;
-                                    ScannedTemplated = true;
-                                    bck.ReportProgress(1);
-                                }
-                            }           
+                            Console.WriteLine("Failed to capture: " + status);
+                            //return -1;
                         }
-                    }                   
+
+                        //Set finger template size (recommended, for enroll to database, is large) (optional)
+                        biometricClient.FingersTemplateSize = NTemplateSize.Large;
+
+                        //Create template from added finger image
+                        status = biometricClient.CreateTemplate(studentSubject);
+                        
+                        //biometricClient.FingersMaximalRotation
+                        if (status == NBiometricStatus.Ok && !bckScanFinger.CancellationPending)
+                        {
+                            //NBuffer templateBuffer = subject.GetTemplateBuffer();
+                            fingerprintTemplate = studentSubject.GetTemplate();
+
+                            nFView1.ShownImage = Neurotec.Biometrics.Gui.ShownImage.Result;
+                            nFView1.Finger = studentFinger;
+                            
+                            fingerprintImage = studentSubject.Fingers[0].Image;
+                            fingerprintImage = studentFinger.Image;
+                            //finger.GetImage
+                            image = fingerprintImage;
+                            
+                            GlobalScanStatus = ScanStatus.TemplateCreated;
+                            ScannedTemplated = true;
+                            bck.ReportProgress(1);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -1611,6 +1693,7 @@ namespace FingerprintMatch
             }
 
             GlobalScanStatus = ScanStatus.Cancelled;
+            NLicense.ReleaseComponents(Components);
         }
 
         private void bckLoadTemplates_DoWork(object sender, DoWorkEventArgs e)
@@ -1670,12 +1753,11 @@ namespace FingerprintMatch
             //LoadPanelMain();
         }
 
-        private bool VerifyFingerprint(student originalStudent, NFRecord template2)
+        private bool VerifyFingerprint(student originalStudent, NTemplate template2)
         {
             const string Components = "Biometrics.FingerExtraction,Biometrics.FingerMatching";
             bool matched = false;
-            NFExtractor extractor = null;
-            NMatcher matcher = null;
+
             try
             {
                 // obtain license
@@ -1685,25 +1767,22 @@ namespace FingerprintMatch
                     matched = false;
                 }
 
-                // create an extractor
-                extractor = new NFExtractor();
-
                 // extract reference template
-                NBuffer referenceTemplate = template2.Save();
+                NTemplate referenceTemplate = template2;
                 
                 //For each finger in the NFRecord
                 
                 // extract candidate template
-                NBuffer leftPinkie;
-                NBuffer leftRing;
-                NBuffer leftMiddle;
-                NBuffer leftIndex;
-                NBuffer leftThumb;
-                NBuffer rightThumb;
-                NBuffer rightIndex;
-                NBuffer rightMiddle;
-                NBuffer rightRing;
-                NBuffer rightPinkie;
+                NTemplate leftPinkie;
+                NTemplate leftRing;
+                NTemplate leftMiddle;
+                NTemplate leftIndex;
+                NTemplate leftThumb;
+                NTemplate rightThumb;
+                NTemplate rightIndex;
+                NTemplate rightMiddle;
+                NTemplate rightRing;
+                NTemplate rightPinkie;
                 int scoreLeftPinkie = 0;
                 int scoreLeftRing = 0;
                 int scoreLeftMiddle = 0;
@@ -1715,109 +1794,188 @@ namespace FingerprintMatch
                 int scoreRightIndex = 0;
                 int scoreRightThumb = 0;
 
-                // create a matcher
-                matcher = new NMatcher();
+                var biometricClient = new NBiometricClient();
+                NSubject referenceSubject = CreateSubject(referenceTemplate, "0");
+                NSubject candidateSubject;
+                // Set matching threshold
+                biometricClient.MatchingThreshold = 48;
+
+                // Set matching speed
+                biometricClient.FingersMatchingSpeed = NMatchingSpeed.Low;
+
+                NBiometricStatus status;
+                int intHighestScore = 0;
                 if (originalStudent.LeftPinkie != null)
                 {
-                    leftPinkie = originalStudent.LeftPinkie.Save();
-                    scoreLeftPinkie = matcher.Verify(referenceTemplate, leftPinkie);
+                    leftPinkie = originalStudent.LeftPinkie;
+                    candidateSubject = CreateSubject(leftPinkie, "1");
+                    status = biometricClient.Verify(referenceSubject, candidateSubject);
+                    if (status == NBiometricStatus.Ok || status == NBiometricStatus.MatchNotFound)
+                    {
+                        scoreLeftPinkie = referenceSubject.MatchingResults[0].Score;
+                        if (referenceSubject.MatchingResults[0].Score > intHighestScore)
+                            intHighestScore = referenceSubject.MatchingResults[0].Score;
+                    }
                 }
                 
                 if (originalStudent.LeftRing != null)
                 {
-                    leftRing = originalStudent.LeftRing.Save();
-                    scoreLeftRing= matcher.Verify(referenceTemplate, leftRing);
+                    leftRing = originalStudent.LeftRing;
+                    candidateSubject = CreateSubject(leftRing, "1");
+                    status = biometricClient.Verify(referenceSubject, candidateSubject);
+                    if (status == NBiometricStatus.Ok || status == NBiometricStatus.MatchNotFound)
+                    {
+                        scoreLeftRing = referenceSubject.MatchingResults[0].Score;
+                        if (referenceSubject.MatchingResults[0].Score > intHighestScore)
+                            intHighestScore = referenceSubject.MatchingResults[0].Score;
+                    }
                 }
 
                 if (originalStudent.LeftMiddle != null)
                 {
-                    leftMiddle = originalStudent.LeftMiddle.Save();
-                    scoreLeftMiddle= matcher.Verify(referenceTemplate, leftMiddle);
+                    leftMiddle = originalStudent.LeftMiddle;
+                    candidateSubject = CreateSubject(leftMiddle, "1");
+                    status = biometricClient.Verify(referenceSubject, candidateSubject);
+                    if (status == NBiometricStatus.Ok || status == NBiometricStatus.MatchNotFound)
+                    {
+                        scoreLeftMiddle = referenceSubject.MatchingResults[0].Score;
+                        if (referenceSubject.MatchingResults[0].Score > intHighestScore)
+                            intHighestScore = referenceSubject.MatchingResults[0].Score;
+                    }
                 }
                 if (originalStudent.LeftIndex != null)
                 {
-                    leftIndex = originalStudent.LeftIndex.Save();
-                    scoreLeftIndex= matcher.Verify(referenceTemplate, leftIndex);
+                    leftIndex = originalStudent.LeftIndex;
+                    candidateSubject = CreateSubject(leftIndex, "1");
+                    status = biometricClient.Verify(referenceSubject, candidateSubject);
+                    if (status == NBiometricStatus.Ok || status == NBiometricStatus.MatchNotFound)
+                    {
+                        scoreLeftIndex = referenceSubject.MatchingResults[0].Score;
+                        if (referenceSubject.MatchingResults[0].Score > intHighestScore)
+                            intHighestScore = referenceSubject.MatchingResults[0].Score;
+                    }
                 }
                 if (originalStudent.LeftThumb != null)
                 {
-                    leftThumb = originalStudent.LeftThumb.Save();
-                    scoreLeftThumb = matcher.Verify(referenceTemplate, leftThumb);
+                    leftThumb = originalStudent.LeftThumb;
+                    candidateSubject = CreateSubject(leftThumb, "1");
+                    status = biometricClient.Verify(referenceSubject, candidateSubject);
+                    if (status == NBiometricStatus.Ok || status == NBiometricStatus.MatchNotFound)
+                    {
+                        scoreLeftThumb = referenceSubject.MatchingResults[0].Score;
+                        if (referenceSubject.MatchingResults[0].Score > intHighestScore)
+                            intHighestScore = referenceSubject.MatchingResults[0].Score;
+                    }
                 }
                 if (originalStudent.RightThumb != null)
                 {
-                    rightThumb = originalStudent.RightThumb.Save();
-                    scoreRightThumb = matcher.Verify(referenceTemplate, rightThumb);
+                    rightThumb = originalStudent.RightThumb;
+                    candidateSubject = CreateSubject(rightThumb, "1");
+                    status = biometricClient.Verify(referenceSubject, candidateSubject);
+                    if (status == NBiometricStatus.Ok || status == NBiometricStatus.MatchNotFound)
+                    {
+                        scoreRightThumb = referenceSubject.MatchingResults[0].Score;
+                        if (referenceSubject.MatchingResults[0].Score > intHighestScore)
+                            intHighestScore = referenceSubject.MatchingResults[0].Score;
+                    }
                 }
 
                 if (originalStudent.RightIndex !=null)
                 {
-                    rightIndex = originalStudent.RightIndex.Save();
-                    scoreRightIndex = matcher.Verify(referenceTemplate, rightIndex);
+                    rightIndex = originalStudent.RightIndex;
+                    candidateSubject = CreateSubject(rightIndex, "1");
+                    status = biometricClient.Verify(referenceSubject, candidateSubject);
+                    if (status == NBiometricStatus.Ok || status == NBiometricStatus.MatchNotFound)
+                    {
+                        scoreRightIndex = referenceSubject.MatchingResults[0].Score;
+                        if (referenceSubject.MatchingResults[0].Score > intHighestScore)
+                            intHighestScore = referenceSubject.MatchingResults[0].Score;
+                    }
                 }
                 if (originalStudent.RightMiddle != null)
                 {
-                    rightMiddle = originalStudent.RightMiddle.Save();
-                    scoreRightMiddle = matcher.Verify(referenceTemplate, rightMiddle);
+                    rightMiddle = originalStudent.RightMiddle;
+                    candidateSubject = CreateSubject(rightMiddle, "1");
+                    status = biometricClient.Verify(referenceSubject, candidateSubject);
+                    if (status == NBiometricStatus.Ok || status == NBiometricStatus.MatchNotFound)
+                    {
+                        scoreRightMiddle = referenceSubject.MatchingResults[0].Score;
+                        if (referenceSubject.MatchingResults[0].Score > intHighestScore)
+                            intHighestScore = referenceSubject.MatchingResults[0].Score;
+                    }
                 }
                 if (originalStudent.RightRing != null)
                 {
-                    rightRing = originalStudent.RightRing.Save();
-                    scoreRightRing = matcher.Verify(referenceTemplate, rightRing);
+                    rightRing = originalStudent.RightRing;
+                    candidateSubject = CreateSubject(rightRing, "1");
+                    status = biometricClient.Verify(referenceSubject, candidateSubject);
+                    if (status == NBiometricStatus.Ok || status == NBiometricStatus.MatchNotFound)
+                    {
+                        scoreRightRing = referenceSubject.MatchingResults[0].Score;
+                        if (referenceSubject.MatchingResults[0].Score > intHighestScore)
+                            intHighestScore = referenceSubject.MatchingResults[0].Score;
+                    }
                 }
                 if (originalStudent.RightPinkie != null)
                 {
-                    rightPinkie = originalStudent.RightPinkie.Save();
-                    scoreRightPinkie = matcher.Verify(referenceTemplate, rightPinkie);
+                    rightPinkie = originalStudent.RightPinkie;
+                    candidateSubject = CreateSubject(rightPinkie, "1");
+                    status = biometricClient.Verify(referenceSubject, candidateSubject);
+                    if (status == NBiometricStatus.Ok || status == NBiometricStatus.MatchNotFound)
+                    {
+                        scoreRightPinkie = referenceSubject.MatchingResults[0].Score;
+                        if (referenceSubject.MatchingResults[0].Score > intHighestScore)
+                            intHighestScore = referenceSubject.MatchingResults[0].Score;
+                    }
                 }
 
-                if (scoreLeftPinkie > 0)
+                if (scoreLeftPinkie == intHighestScore)
                 {
                     matched = true;
                     matchedFingerID = 1;
                 }
-                if (scoreLeftRing > 0)
+                if (scoreLeftRing == intHighestScore)
                 {
                     matched = true;
                     matchedFingerID = 2;
                 }
 
-                if (scoreLeftMiddle > 0)
+                if (scoreLeftMiddle == intHighestScore)
                 {
                     matched = true;
                     matchedFingerID = 3;
                 }
-                if (scoreLeftIndex > 0)
+                if (scoreLeftIndex == intHighestScore)
                 {
                     matched = true;
                     matchedFingerID = 4;
                 }
-                if (scoreLeftThumb > 0)
+                if (scoreLeftThumb == intHighestScore)
                 {
                     matched = true;
                     matchedFingerID = 5;
                 }
-                if (scoreRightPinkie > 0)
+                if (scoreRightPinkie == intHighestScore)
                 {
                     matched = true;
                     matchedFingerID = 6;
                 }
-                if (scoreRightRing > 0)
+                if (scoreRightRing == intHighestScore)
                 {
                     matched = true;
                     matchedFingerID = 7;
                 }
-                if (scoreRightMiddle > 0)
+                if (scoreRightMiddle == intHighestScore)
                 { 
                     matched = true;
                     matchedFingerID = 8;
                 }
-                if (scoreRightIndex > 0)
+                if (scoreRightIndex == intHighestScore)
                 {
                     matched = true;
                     matchedFingerID = 9;
                 }
-                if (scoreRightThumb > 0)
+                if (scoreRightThumb == intHighestScore)
                 {
                     matched = true;
                     matchedFingerID = 10;
@@ -1835,17 +1993,7 @@ namespace FingerprintMatch
             }
             finally
             {
-                NLicense.ReleaseComponents(Components);
-
-                if (extractor != null)
-                {
-                    extractor.Dispose();
-                }
-                if (matcher != null)
-                {
-                    matcher.Dispose();
-                }
-                
+                NLicense.ReleaseComponents(Components);                
             }
             return matched;
             

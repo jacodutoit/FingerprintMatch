@@ -52,7 +52,6 @@
             this.pgbLoadTemplates = new System.Windows.Forms.ProgressBar();
             this.lblStatus = new System.Windows.Forms.Label();
             this.lblMatchResult = new System.Windows.Forms.Label();
-            this.nfView1 = new Neurotec.Biometrics.Gui.NFView();
             this.lblIdentifyActionMessage = new System.Windows.Forms.Label();
             this.bckScanFinger = new System.ComponentModel.BackgroundWorker();
             this.bckLoadTemplates = new System.ComponentModel.BackgroundWorker();
@@ -75,6 +74,7 @@
             this.lblRegisStatus = new System.Windows.Forms.Label();
             this.lblClassStatus = new System.Windows.Forms.Label();
             this.courseBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.nFView1 = new Neurotec.Biometrics.Gui.NFingerView();
             this.pnlMain.SuspendLayout();
             this.pnlIdentification.SuspendLayout();
             this.pnlIdentifyAction.SuspendLayout();
@@ -246,6 +246,7 @@
             // pnlIdentifyAction
             // 
             this.pnlIdentifyAction.BackColor = System.Drawing.SystemColors.Control;
+            this.pnlIdentifyAction.Controls.Add(this.nFView1);
             this.pnlIdentifyAction.Controls.Add(this.txtMatchStudentNumber);
             this.pnlIdentifyAction.Controls.Add(this.btnMatchRetry);
             this.pnlIdentifyAction.Controls.Add(this.btnMatchConfirm);
@@ -253,7 +254,6 @@
             this.pnlIdentifyAction.Controls.Add(this.pgbLoadTemplates);
             this.pnlIdentifyAction.Controls.Add(this.lblStatus);
             this.pnlIdentifyAction.Controls.Add(this.lblMatchResult);
-            this.pnlIdentifyAction.Controls.Add(this.nfView1);
             this.pnlIdentifyAction.Controls.Add(this.lblIdentifyActionMessage);
             this.pnlIdentifyAction.Location = new System.Drawing.Point(557, 13);
             this.pnlIdentifyAction.Name = "pnlIdentifyAction";
@@ -331,26 +331,6 @@
             this.lblMatchResult.Text = "label1";
             this.lblMatchResult.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblMatchResult.Visible = false;
-            // 
-            // nfView1
-            // 
-            this.nfView1.AutoSize = true;
-            this.nfView1.BackColor = System.Drawing.SystemColors.Control;
-            this.nfView1.Location = new System.Drawing.Point(13, 29);
-            this.nfView1.MaximumSize = new System.Drawing.Size(300, 300);
-            this.nfView1.MinimumSize = new System.Drawing.Size(300, 300);
-            this.nfView1.MinutiaColor = System.Drawing.Color.Red;
-            this.nfView1.Name = "nfView1";
-            this.nfView1.NeighborMinutiaColor = System.Drawing.Color.Orange;
-            this.nfView1.SelectedMinutiaColor = System.Drawing.Color.Magenta;
-            this.nfView1.SelectedSingularPointColor = System.Drawing.Color.Magenta;
-            this.nfView1.SingularPointColor = System.Drawing.Color.Red;
-            this.nfView1.Size = new System.Drawing.Size(300, 300);
-            this.nfView1.TabIndex = 1;
-            this.nfView1.TreeColor = System.Drawing.Color.Crimson;
-            this.nfView1.TreeMinutiaNumberDiplayFormat = Neurotec.Biometrics.Gui.MinutiaNumberDiplayFormat.DontDisplay;
-            this.nfView1.TreeMinutiaNumberFont = new System.Drawing.Font("Arial", 10F);
-            this.nfView1.TreeWidth = 2D;
             // 
             // lblIdentifyActionMessage
             // 
@@ -495,7 +475,6 @@
             // tmrSync
             // 
             this.tmrSync.Interval = 60000;
- 
             // 
             // pnlStatusInfo
             // 
@@ -545,16 +524,31 @@
             this.lblClassStatus.TabIndex = 0;
             this.lblClassStatus.Text = "label2";
             // 
-            // courseBindingSource
+            // nFView1
             // 
-            this.courseBindingSource.DataSource = typeof(FingerprintMatch.classes.course);
+            this.nFView1.BackColor = System.Drawing.SystemColors.Control;
+            this.nFView1.BoundingRectColor = System.Drawing.Color.Red;
+            this.nFView1.Location = new System.Drawing.Point(108, 34);
+            this.nFView1.MinutiaColor = System.Drawing.Color.Red;
+            this.nFView1.Name = "nFView1";
+            this.nFView1.NeighborMinutiaColor = System.Drawing.Color.Orange;
+            this.nFView1.ResultImageColor = System.Drawing.Color.Green;
+            this.nFView1.SelectedMinutiaColor = System.Drawing.Color.Magenta;
+            this.nFView1.SelectedSingularPointColor = System.Drawing.Color.Magenta;
+            this.nFView1.SingularPointColor = System.Drawing.Color.Red;
+            this.nFView1.Size = new System.Drawing.Size(327, 287);
+            this.nFView1.TabIndex = 11;
+            this.nFView1.TreeColor = System.Drawing.Color.Crimson;
+            this.nFView1.TreeMinutiaNumberDiplayFormat = Neurotec.Biometrics.Gui.MinutiaNumberDiplayFormat.DontDisplay;
+            this.nFView1.TreeMinutiaNumberFont = new System.Drawing.Font("Arial", 10F);
+            this.nFView1.TreeWidth = 2D;
             // 
             // Main
             // 
             this.AcceptButton = this.btnVerify;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1476, 873);
+            this.ClientSize = new System.Drawing.Size(1362, 741);
             this.Controls.Add(this.pnlStatusInfo);
             this.Controls.Add(this.pnlConfirmCancel);
             this.Controls.Add(this.pnlConfirmMessage);
@@ -601,7 +595,7 @@
         private System.Windows.Forms.TextBox txtBreakoutPin;
         private System.Windows.Forms.Label lblBreakOutPin;
         private System.Windows.Forms.Panel pnlIdentifyAction;
-        private Neurotec.Biometrics.Gui.NFView nfView1;
+        //private Neurotec.Biometrics.Gui.NFView nfView1;
         private System.Windows.Forms.Label lblIdentifyActionMessage;
         private System.ComponentModel.BackgroundWorker bckScanFinger;
         private System.Windows.Forms.Label lblMatchResult;
@@ -635,8 +629,7 @@
         private System.Windows.Forms.Label lblExamIDStatus;
         private System.Windows.Forms.Label lblRegisStatus;
         private System.Windows.Forms.Label lblClassStatus;
-
-
+        private Neurotec.Biometrics.Gui.NFingerView nFView1;
     }
 }
 

@@ -59,6 +59,7 @@ namespace FingerprintMatch.classes
             SqlConnection conn = new SqlConnection(conRegistrationDB);
             conn.Open();
             string query = "SELECT DISTINCT [Student_number] FROM [RegistrationDB].[dbo].[module_registrations] ORDER BY Student_number";
+            //string query = "SELECT [Student_number] FROM [RegistrationDB].[dbo].[v_module_students]";
             SqlCommand cmd = new SqlCommand(query, conn);
             DataTable dt = new DataTable();
             dt.Load(cmd.ExecuteReader());
@@ -95,6 +96,7 @@ namespace FingerprintMatch.classes
             SqlConnection conn = new SqlConnection(conRegistrationDB);
             conn.Open();
             string query = "SELECT distinct [Module_code],[Module_name] FROM [RegistrationDB].[dbo].[module_registrations] ORDER BY Module_code";
+            //string query = "SELECT TOP 10000 [Module_code],[Module_name] FROM [RegistrationDB].[dbo].[v_module_registrations]";
             //string query = "uspGetUniqueCourseList";
             SqlCommand cmd = new SqlCommand(query, conn);
             //cmd.CommandType = CommandType.StoredProcedure;
@@ -103,6 +105,25 @@ namespace FingerprintMatch.classes
             dt.Load(cmd.ExecuteReader());
             conn.Close();
             return dt;
+        }
+
+        private static string _getCourseName(string strModuleCode)
+        {
+            string strCourseName = "";
+            SqlConnection conn = new SqlConnection(conRegistrationDB);
+            conn.Open();
+            string query = "SELECT [Module_name] FROM [RegistrationDB].[dbo].[module_registrations] WHERE [Module_code] = '" + strModuleCode + "'";
+            //string query = "uspGetUniqueCourseList";
+            SqlCommand cmd = new SqlCommand(query, conn);
+            //cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandTimeout = 60;
+            DataTable dt = new DataTable();
+            dt.Load(cmd.ExecuteReader());
+            conn.Close();
+
+            DataRow dr = dt.Rows[0];
+            strCourseName = (string)dr[0];
+            return strCourseName;
         }
 
         private static DataTable _getStudentNumbersUsingCourse(string CourseCode)
@@ -177,16 +198,16 @@ namespace FingerprintMatch.classes
                 if (dr.IsNull("card_number")) { _student.CardNumber = null; } else { _student.CardNumber = (string)dr["card_number"]; };
                 if (dr.IsNull("OldCards")) { _student.CardHistory = null; } else { _student.CardHistory = (string)dr["OldCards"]; };
                 if (dr.IsNull("student_number")) { _student.StudentNumber = null; } else { _student.StudentNumber = (string)dr["student_number"];};
-                if (dr.IsNull("LeftPinkieTemplate")) { _student.LeftPinkie = null; } else { _student.LeftPinkie = new NFRecord((byte[])dr["LeftPinkieTemplate"]); };
-                if (dr.IsNull("LeftRingTemplate")) { _student.LeftRing = null; } else { _student.LeftRing = new NFRecord((byte[])dr["LeftRingTemplate"]);};
-                if (dr.IsNull("LeftMiddleTemplate")) { _student.LeftMiddle = null; } else {  _student.LeftMiddle = new NFRecord((byte[])dr["LeftMiddleTemplate"]);};
-                if (dr.IsNull("LeftIndexTemplate")) { _student.LeftIndex = null; } else { _student.LeftIndex = new NFRecord((byte[])dr["LeftIndexTemplate"]);};
-                if (dr.IsNull("LeftThumbTemplate")) {_student.LeftThumb = null;} else {_student.LeftThumb = new NFRecord((byte[])dr["LeftThumbTemplate"]); };
-                if (dr.IsNull("RightThumbTemplate")) { _student.RightThumb = null; } else { _student.RightThumb = new NFRecord((byte[])dr["RightThumbTemplate"]);};
-                if (dr.IsNull("RightIndexTemplate")) { _student.RightIndex = null; } else { _student.RightIndex = new NFRecord((byte[])dr["RightIndexTemplate"]);};
-                if (dr.IsNull("RightMiddleTemplate")) { _student.RightMiddle = null; } else { _student.RightMiddle = new NFRecord((byte[])dr["RightMiddleTemplate"]);};
-                if (dr.IsNull("RightRingTemplate")) { _student.RightRing = null; } else { _student.RightRing = new NFRecord((byte[])dr["RightRingTemplate"]);};
-                if (dr.IsNull("RightPinkieTemplate")) { _student.RightPinkie = null; } else { _student.RightPinkie = new NFRecord((byte[])dr["RightPinkieTemplate"]);};
+                if (dr.IsNull("LeftPinkieTemplate")) { _student.LeftPinkie = null; } else { _student.LeftPinkie = new NTemplate((byte[])dr["LeftPinkieTemplate"]); };
+                if (dr.IsNull("LeftRingTemplate")) { _student.LeftRing = null; } else { _student.LeftRing = new NTemplate((byte[])dr["LeftRingTemplate"]);};
+                if (dr.IsNull("LeftMiddleTemplate")) { _student.LeftMiddle = null; } else {  _student.LeftMiddle = new NTemplate((byte[])dr["LeftMiddleTemplate"]);};
+                if (dr.IsNull("LeftIndexTemplate")) { _student.LeftIndex = null; } else { _student.LeftIndex = new NTemplate((byte[])dr["LeftIndexTemplate"]);};
+                if (dr.IsNull("LeftThumbTemplate")) {_student.LeftThumb = null;} else {_student.LeftThumb = new NTemplate((byte[])dr["LeftThumbTemplate"]); };
+                if (dr.IsNull("RightThumbTemplate")) { _student.RightThumb = null; } else { _student.RightThumb = new NTemplate((byte[])dr["RightThumbTemplate"]);};
+                if (dr.IsNull("RightIndexTemplate")) { _student.RightIndex = null; } else { _student.RightIndex = new NTemplate((byte[])dr["RightIndexTemplate"]);};
+                if (dr.IsNull("RightMiddleTemplate")) { _student.RightMiddle = null; } else { _student.RightMiddle = new NTemplate((byte[])dr["RightMiddleTemplate"]);};
+                if (dr.IsNull("RightRingTemplate")) { _student.RightRing = null; } else { _student.RightRing = new NTemplate((byte[])dr["RightRingTemplate"]);};
+                if (dr.IsNull("RightPinkieTemplate")) { _student.RightPinkie = null; } else { _student.RightPinkie = new NTemplate((byte[])dr["RightPinkieTemplate"]);};
                 if (dr.IsNull("LeftPinkieTemplate")) { _student.LeftPinkie = null; } else { _student.template[0] = (byte[])dr["LeftPinkieTemplate"]; };
                 if (dr.IsNull("LeftRingTemplate")) { _student.LeftRing = null; } else { _student.template[1] = (byte[])dr["LeftRingTemplate"]; };
                 if (dr.IsNull("LeftMiddleTemplate")) { _student.LeftMiddle = null; } else { _student.template[2] = (byte[])dr["LeftMiddleTemplate"]; };
