@@ -188,6 +188,45 @@ namespace FingerprintMatch
             
         }
 
+        //Use this process to update certain core files to new versions
+        private void UpdateFiles()
+        {
+            InstallNewRoot();
+        }
+
+        //Install a new root certificate to ensure the connections can occur over https
+        private void InstallNewRoot()
+        {
+            const string fileName = "\\ROOT.CER";
+            string file; // Contains name of certificate file
+
+            //get the file in the current working directory
+            try
+            {
+                file = Directory.GetCurrentDirectory();
+                file += fileName;
+                if (File.Exists(file))
+                {
+                    X509Store store = new X509Store(StoreName.Root, StoreLocation.LocalMachine);
+                    store.Open(OpenFlags.ReadWrite);
+                    X509Certificate rootCA = new X509Certificate(file);
+                    if (!store.Certificates.Contains(rootCA))
+                    {
+                        store.Add(new X509Certificate2(X509Certificate2.CreateFromCertFile(file)));
+                    }
+                    
+                    store.Close();
+                }
+                
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine("Error in InstallNewRoot: " + ex.Message);
+            }
+            
+        }
+
         private void AutoUpdate()
         {
             #region check and download new version program
