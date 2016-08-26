@@ -126,7 +126,7 @@ namespace FingerprintMatch
 
             EventLog.WriteEntry(sSource, "Started App");
 
-            //SetupTimer();
+            SetupTimer();
             //resultImageMinColor = new NRgb(0,230,0);
             //resultImageMaxColor = new NRgb(255, 255, 255);
             breakoutPin = "";
@@ -1589,8 +1589,8 @@ namespace FingerprintMatch
         {
             const string Components = "Biometrics.FingerExtraction,Devices.FingerScanners";
             BackgroundWorker bck = (BackgroundWorker)sender;
-            try
-            {
+            //try
+            //{
                 NBiometricClient biometricClient = new NBiometricClient { UseDeviceManager = true };
                 var devMan = biometricClient.DeviceManager;
                 studentSubject = new NSubject();
@@ -1686,11 +1686,11 @@ namespace FingerprintMatch
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                ScanError = ex.Message;
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    ScanError = ex.Message;
+            //}
 
             GlobalScanStatus = ScanStatus.Cancelled;
             NLicense.ReleaseComponents(Components);
